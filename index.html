@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow</title>
+    <style>
+        :root {
+            --primary-blue: #2B6CB0;
+            --secondary-blue: #4A90E2;
+            --green-badge: #059669;
+            --green-badge-bg: #D1FAE5;
+            --yellow-badge: #D97706;
+            --yellow-badge-bg: #FEF3C7;
+            --red-badge: #DC2626;
+            --red-badge-bg: #FEE2E2;
+            --light-bg: #F0F2F5;
+            --card-bg: #FFFFFF;
+            --border-color: #E0E0E0;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --shadow-custom: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+        }
+
+        .header {
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow-custom);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-left .logo-icon {
+            color: var(--primary-blue);
+            height: 2rem;
+            width: 2rem;
+        }
+
+        .header-left h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .header-left .tagline {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .header-left .tagline {
+                display: block;
+            }
+        }
+
+        .header-right {
+            text-align: right;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            flex-grow: 1;
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr 2fr;
+            }
+        }
+
+        .analytics-panel {
+            grid-column: 1 / -1;
+        }
+        
+        @media (min-width: 1024px) {
+            .analytics-panel {
+                grid-column: 1 / span 3;
+            }
+        }
+
+        .panel {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-custom);
+            border: 1px solid var(--border-color);
+        }
+
+        .panel-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .panel-header svg {
+            color: var(--primary-blue);
+            height: 1.5rem;
+            width: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .add-btn {
+            background-color: var(--primary-blue);
+        }
+
+        .add-btn:hover {
+            background-color: var(--secondary-blue);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background-color: var(--light-bg);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-card-title {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-card-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .stat-card-value.green { color: var(--green-badge); }
+        .stat-card-value.orange { color: var(--yellow-badge); }
+        .stat-card-value.blue { color: var(--primary-blue); }
+        
+        .stat-card svg {
+            color: var(--primary-blue);
+            height: 2rem;
+            width: 2rem;
+        }
+
+        .task-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .task-controls select {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .task-controls .control-btn {
+            background-color: #D0021B;
+            color: white;
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .task-controls .control-btn:hover {
+            background-color: #A30000;
+        }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 1rem;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            transition: box-shadow 0.2s, transform 0.2s;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        .task-item:hover {
+            box-shadow: var(--shadow-custom);
+            transform: translateY(-2px);
+        }
+
+        .task-item.completed {
+            background-color: #F0FFF4;
+            border-color: #C6F6D5;
+        }
+
+        .task-item input[type="checkbox"] {
+            margin-right: 1rem;
+            height: 1.25rem;
+            width: 1.25rem;
+            accent-color: var(--primary-blue);
+            cursor: pointer;
+        }
+
+        .task-content {
+            flex-grow: 1;
+        }
+
+        .task-content .description {
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .task-content .description.completed {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+        }
+
+        .task-content .priority-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            margin-top: 0.25rem;
+            display: inline-block;
+        }
+
+        .priority-high { background-color: var(--red-badge-bg); color: var(--red-badge); }
+        .priority-medium { background-color: var(--yellow-badge-bg); color: var(--yellow-badge); }
+        .priority-low { background-color: var(--green-badge-bg); color: var(--green-badge); }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: 1rem;
+        }
+
+        .task-actions .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+        }
+
+        .task-actions .action-btn:hover {
+            color: var(--red-badge);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 0;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line>
+            </svg>
+            <h1>TaskFlow</h1>
+            <span class="tagline">Professional Task Management</span>
+        </div>
+        <div class="header-right">
+            <p>Data Analyst Portfolio</p>
+            <p>Built for Recruitment</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="panel analytics-panel">
+            <h2 class="panel-header">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.5l10.5-11.25L21 21H3.75z"></path>
+                </svg>
+                Analytics Overview
+            </h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-card-title">Total Tasks</p>
+                        <p class="stat-card-value" id="total-tasks-stat">0</p>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line>
+                    </svg>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-card-title">Completed</p>
+                        <p class="stat-card-value green" id="completed-tasks-stat">0</p>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-8.56"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-card-title">Pending</p>
+                        <p class="stat-card-value orange" id="pending-tasks-stat">0</p>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                        <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-card-title">Completion Rate</p>
+                        <p class="stat-card-value blue" id="completion-rate-stat">0%</p>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                        <path d="M21.2 15.2A10 10 0 1 1 14 5l6.5-6.5h-5M22 6L14 14l-4.5 4.5M10.5 13L21 2M15 13h5.5l.5-5.5"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="column-left">
+            <div class="panel">
+                <h2 class="panel-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Add New Task
+                </h2>
+                <form id="add-task-form">
+                    <div class="input-group">
+                        <label for="task-description">Task Description</label>
+                        <input type="text" id="task-description" placeholder="e.g., Analyze Q3 Sales Data" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="task-priority">Priority Level</label>
+                        <select id="task-priority">
+                            <option value="low">Low Priority</option>
+                            <option value="medium">Medium Priority</option>
+                            <option value="high">High Priority</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn add-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Task
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="column-right">
+            <div class="panel">
+                <div class="task-controls">
+                    <h2 class="panel-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2-10H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2z"></path>
+                        </svg>
+                        My Tasks
+                    </h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <select id="filter-tasks">
+                            <option value="all">All</option>
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                        <button class="control-btn" id="clear-completed-btn">Clear Completed</button>
+                    </div>
+                </div>
+                <ul class="task-list" id="task-list">
+                    <div class="empty-state" id="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="height: 6rem; width: 6rem; opacity: 0.7; margin: 0 auto 1rem; color: #A0AEC0;">
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line>
+                        </svg>
+                        <p style="font-size: 1.25rem; font-weight: 500;">No tasks yet</p>
+                        <p style="font-size: 0.875rem;">Add your first task to get started.</p>
+                    </div>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
